@@ -3,7 +3,7 @@ import sys
 import atexit
 import RPi.GPIO as GPIO
 
-DEBUG = 1
+DEBUG = 0
 
 # change these as desired - they're the pins connected from the
 # SPI port on the ADC to the Cobbler

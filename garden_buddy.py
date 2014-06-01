@@ -5,6 +5,7 @@ import sys
 sys.path.append("./lib")
 import moisture
 import temperature
+import rrd
 
 import signal
 
@@ -32,8 +33,10 @@ def main():
             print "temperature_value:", temperature_value
             print "------------------------------------"
 
+        rrd.update(moisture_value, temperature_value)
+
         # hang out and do nothing for 5 secs
-        time.sleep(5)
+        time.sleep(300)
 
     # We should never get here, but just in case
     moisture.teardown()
