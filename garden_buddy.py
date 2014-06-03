@@ -7,7 +7,8 @@ import argparse
 import logging
 
 sys.path.append("./lib")
-import analog
+#import analog
+import analog_bb as analog
 import temperature
 import rrd
 
@@ -70,7 +71,7 @@ def main():
     while True:
         # read the analog pins
         moisture_value = analog.poll(channel=0)
-        pot_value = analog.poll(channel=1)
+        pot_value = analog.poll(channel=2)
 
         # poll the thermometer
         temperature_value = temperature.poll()
