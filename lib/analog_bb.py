@@ -19,7 +19,7 @@ GPIO.setup(SPICS, GPIO.OUT)
 
 
 def poll(channel):
-    return readadc(channel, SPICLK,SPIMOSI,SPIMISO,SPICS) / 1024
+    return readadc(channel, SPICLK,SPIMOSI,SPIMISO,SPICS) / 10.24
 
 # read SPI data from MCP3008 chip, 8 possible adc's (0 thru 7)
 def readadc(adcnum, clockpin, mosipin, misopin, cspin):
