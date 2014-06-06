@@ -1,23 +1,36 @@
 #!/usr/bin/sudo python
+"""
+Garden Buddy
+
+Like a monitoring system for your garden.
+https://github.com/mmessmore/garden_buddy
+"""
 import time
-import os
 import sys
 import signal
 import argparse
 import logging
 
 sys.path.append("./lib")
-#import analog
 import analog_bb as analog
 import temperature
 import rrd
-
+import config
+import weather
 
 def cleanup(signum, frame):
+    """Signal handler to exit nicely"""
+    logger = logging.getLogger(__name__)
+    logger.debug("Caught signal: %s, frame: %s", signum, frame)
     sys.exit(0)
 
 def getopts():
-    description='Log garden sensor data to RRD'
+    """Parse command line arguments
+
+    Returns:
+        namespace with options
+    """
+    description = 'Log garden sensor data to RRD'
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('-D', '--debug',
             dest='debug',
@@ -33,6 +46,11 @@ def getopts():
             dest='logfile',
             default='-',
             help="Set log file")
+    parser.add_argument('-r', '--rrdfile',
+            action='store',
+            dest='rrdfile',
+            default='./soil.rrd',
+            help="Set RRD file")
     parser.add_argument('-n', '--no-write',
             dest='no',
             action='store_true',
@@ -53,40 +71,54 @@ def getopts():
     numeric_level = getattr(logging, opts.loglevel, None)
     logging.basicConfig(format=logging_format, level=numeric_level)
     if opts.logfile != "-":
-        fh = logging.handlers.WatchedFileHandler(opts.logfile)
+        handle = logging.handlers.WatchedFileHandler(opts.logfile)
         logger = logging.getLogger(__name__)
-        logger.addHandler(fh)
+        logger.addHandler(handle)
 
     return opts
 
 def main():
+    """ You know.  Actually do stuff """
 
-    opts = getopts()
-    logger = logging.getLogger(__name__)
-
+    # Set up signal handlers for nice exit
     signal.signal(signal.SIGTERM, cleanup)
     signal.signal(signal.SIGINT, cleanup)
 
+    logger = logging.getLogger(__name__)
+    logger.debug("Parsing command line options")
+    opts = getopts()
+    logger.debug("Parsing config file")
+    conf = config.Config()
+    logger.debug("Setting up RRD")
+    myrrd = rrd.RRD(opts.rrdpath, conf)
 
     while True:
-        # read the analog pins
-        moisture_value = analog.poll(channel=0)
-        pot_value = analog.poll(channel=2)
+        logger.debug("Polling")
+        values = []
 
-        # poll the thermometer
-        temperature_value = temperature.poll()
+        # sort to ensure order
+        sensors = conf.sensors.keys()
+        sensors.sort()
+        for sensor in sensors:
+            if conf.sensors[sensor]['type'] == "analog":
+                value = analog.poll(conf.sensors[sensor]['id'])
+            elif conf.sensors[sensor]['type'] == "w1":
+                value = temperature.poll(conf.sensors[sensor]['id'])
+            elif conf.sensors[sensor]['type'] == "noaa":
+                value = weather.poll(conf.sensors[sensor]['id'])
 
-        logger.info("moisture_value:%s", moisture_value)
-        logger.info("pot_value:%s", pot_value)
-        logger.info("temperature_value:%s", temperature_value)
+            logger.info("%s => %d", conf.sensors[sensor]['title'], value)
+            values.append(value)
 
         if not opts.no:
-            rrd.update(moisture_value, temperature_value)
+            myrrd.update(*values)
 
+        logger.debug("Sleep for %d seconds...", opts.interval)
         time.sleep(opts.interval)
 
     # We should never get here, but just in case
-    moisture.teardown()
+    logger.warning("Somehow broke out of the main loop")
+    analog.teardown()
 
 if __name__ == '__main__':
     main()

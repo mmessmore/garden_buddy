@@ -26,7 +26,7 @@ class Weather:
         self.timeout = datetime.timedelta(minutes=60)
         self.poll()
 
-    def poll(self):
+    def _poll(self):
         """Refetch weather data if needed (based on time)"""
         if (datetime.datetime.now() - self.timestamp ) < self.timeout:
             return True
@@ -37,13 +37,24 @@ class Weather:
                         self.weather['observation_time_rfc822']))))
         return True
 
+    def poll(self, value):
+        self._poll()
+        values = {
+                'temperature': 'temp_c',
+                'humidity': 'relative_humidity',
+                'wind': 'wind_mph',
+                'pressure': 'pressure_mb',
+                'dewpoint': 'dewpoint_c'
+                }
+        return self.weather[values[value]]
+
     def temperature(self):
         """Get current temperature in C
 
         Returns:
             The temperature in degrees Celcius
         """
-        self.poll()
+        self._poll()
         return self.weather['temp_c']
 
     def humidity(self):
@@ -52,7 +63,7 @@ class Weather:
         Returns:
             The humidity in numbers
         """
-        self.poll()
+        self._poll()
         return self.weather['relative_humidity']
 
     def wind(self):
@@ -61,7 +72,7 @@ class Weather:
         Returns:
             The wind speed in Miles/Hour
         """
-        self.poll()
+        self._poll()
         return self.weather['wind_mph']
 
     def pressure(self):
@@ -70,7 +81,7 @@ class Weather:
         Returns:
             The pressure in Milibars
         """
-        self.poll()
+        self._poll()
         return self.weather['pressure_mb']
 
     def dewpoint(self):
@@ -79,7 +90,7 @@ class Weather:
         Returns:
             The dewpoint in degrees Celcius
         """
-        self.poll()
+        self._poll()
         return self.weather['dewpoint_c']
 
 if __name__ == '__main__':
