@@ -10,7 +10,7 @@ import tempfile
 sys.path.append("./lib")
 import config
 
-RRD_PATH = "./soil.rrd"
+RRD_PATH = "soil.rrd"
 
 (fd, image_file) = tempfile.mkstemp(suffix=".png", prefix="buddy", dir="/tmp")
 os.close(fd)
@@ -32,9 +32,9 @@ sensors.sort()
 
 args = [image_file, "--start", start]
 for sensor in sensors:
-    args.append("DEF:{}={}:{}:AVERAGE".format(sensor, sensor, RRD_PATH)
+    args.append("DEF:{}={}:{}:AVERAGE".format(sensor + "_line", RRD_PATH, sensor))
     args.append("LINE{}:{}{}:{}".format(
-        lineno, sensor, colors[lineno], conf.sensors[sensor]['title'])
+        lineno, sensor + "_line", colors[lineno], conf.sensors[sensor]['title']))
     lineno += 1
 
 ret = rrdtool.graph(*args)

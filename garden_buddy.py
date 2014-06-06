@@ -18,6 +18,8 @@ import rrd
 import config
 import weather
 
+STATION = 'KMEM'
+
 def cleanup(signum, frame):
     """Signal handler to exit nicely"""
     logger = logging.getLogger(__name__)
@@ -90,7 +92,9 @@ def main():
     logger.debug("Parsing config file")
     conf = config.Config()
     logger.debug("Setting up RRD")
-    myrrd = rrd.RRD(opts.rrdpath, conf)
+    myrrd = rrd.RRD(opts.rrdfile, conf)
+    logger.debug("Setting up RRD")
+    noaa = weather.Weather(STATION)
 
     while True:
         logger.debug("Polling")
@@ -105,9 +109,9 @@ def main():
             elif conf.sensors[sensor]['type'] == "w1":
                 value = temperature.poll(conf.sensors[sensor]['id'])
             elif conf.sensors[sensor]['type'] == "noaa":
-                value = weather.poll(conf.sensors[sensor]['id'])
+                value = noaa.poll(conf.sensors[sensor]['id'])
 
-            logger.info("%s => %d", conf.sensors[sensor]['title'], value)
+            logger.info("%s => %s", conf.sensors[sensor]['title'], value)
             values.append(value)
 
         if not opts.no:

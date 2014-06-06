@@ -2,16 +2,19 @@
 
 DEBUG = True
 
+import os
 import rrdtool
 import logging
+import time
 
 RRDPATH = './soil.rrd'
 
 class RRD:
-    def __init__(self, path, config):
+    def __init__(self, path, conf):
         self.path = path
-        self.config = config
+        self.conf = conf
         self.logger = logging.getLogger(__name__)
+        self.init_rrd()
 
 
     def init_rrd(self):
@@ -22,7 +25,7 @@ class RRD:
 
         create_args = [self.path, "--step", "300", "--start", str(int(time.time()))]
 
-        sk = conf.sensors.keys()
+        sk = self.conf.sensors.keys()
         sk.sort()
         for sensor in sk:
             create_args.append("DS:{}:GAUGE:600:U:U".format(sensor))
@@ -41,7 +44,7 @@ class RRD:
         return True
 
     def update(self, *args):
-        update_str = "N:"
+        update_str = "N"
         for arg in args:
             update_str = "{}:{}".format(update_str, arg)
         self.logger.debug("Updating RRD with %s", update_str)

@@ -24,7 +24,7 @@ class Weather:
         self.station = station
         self.timestamp = datetime.datetime(1970, 1, 1)
         self.timeout = datetime.timedelta(minutes=60)
-        self.poll()
+        self._poll()
 
     def _poll(self):
         """Refetch weather data if needed (based on time)"""
