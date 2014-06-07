@@ -37,7 +37,10 @@ class Config:
                         raise ConfigError(
                                 "Section {} missing \"{}\"".format(section,
                                     name))
-                self.graphs[section] = self.cp.get(section, "sensors").split(",")
+                self.graphs[section] = {}
+                self.graphs[section]["sensors"] = self.cp.get(section,
+                        "sensors").split(",")
+                self.graphs[section]["title"] = self.cp.get(section, "title")
             # Assume we're a sensor
             else:
                 for name in [ "title", "type", "unit", "id" ]:
@@ -51,7 +54,7 @@ class Config:
 
     def validate(self):
         for (name, value) in self.graphs.items():
-            for sensor in value:
+            for sensor in value['sensors']:
                 if not sensor in self.sensors.keys():
                     raise ConfigError(
                             "Error in {}: No such Sensor {}".format(name,
