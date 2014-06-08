@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <title>GardenBuddy</title>
+    </head>
+<body>
+<h1>GardenBuddy</h1>
+{% for graph in graphs.keys() %}
+    <h2>{{graphs[graph]['title']}}</h2>
+    <img src="{{ url_for('graph', graph=graph) }}"/>
+{% endfor %}
+</body>
+</html>
+

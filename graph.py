@@ -2,7 +2,7 @@
 
 import sys
 import os
-from flask import Flask, make_response
+from flask import Flask, make_response, render_template
 import rrdtool
 import tempfile
 sys.path.append("./lib")
@@ -17,23 +17,7 @@ conf = config.Config()
 
 @app.route('/')
 def front():
-    start = ""
-    text = """
-<html>
-<head><title>GardenBuddy</title></head>
-<body>
-<h1>GardenBuddy</h1>
-"""
-
-    for graph in conf.graphs.keys():
-        text += "<h2>{}</h2>".format(conf.graphs[graph]['title'])
-        text += '<img src="/graph/{}"/>'.format(graph, start)
-    text += """
-</body>
-</html>
-"""
-    return text
-
+    return render_template('index.html', graphs=conf.graphs)
 
 def get_sensors(name, conf):
     # all the sensors if the spec is bogus
