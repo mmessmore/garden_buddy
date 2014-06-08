@@ -12,7 +12,7 @@ import argparse
 import logging
 
 sys.path.append("./lib")
-import analog_bb as analog
+import analog
 import temperature
 import rrd
 import config
