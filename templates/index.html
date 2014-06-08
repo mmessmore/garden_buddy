@@ -1,13 +1,21 @@
 <html>
     <head>
         <title>GardenBuddy</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css')}}">
     </head>
 <body>
+<header>
 <h1>GardenBuddy</h1>
+</header>
 {% for graph in graphs.keys() %}
+<section>
     <h2>{{graphs[graph]['title']}}</h2>
-    <img src="{{ url_for('graph', graph=graph) }}"/>
+    <img src="{{ url_for('graph', graph=graph) }}">
+</section>
 {% endfor %}
+<footer>
+<p>&copy; 2014 Mike Messmore</p>
+</footer>
 </body>
 </html>
 
